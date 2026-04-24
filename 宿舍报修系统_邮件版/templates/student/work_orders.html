@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block title %}我的工单{% endblock %}
+{% block content %}
+<div class="content-card">
+    <h4 class="mb-4"><i class="bi bi-clipboard-check me-2"></i>我的工单</h4>
+    
+    <div class="mb-3">
+        <a href="{{ url_for('student.work_orders', status='') }}" class="btn btn-sm btn-outline-secondary">全部</a>
+        <a href="{{ url_for('student.work_orders', status='assigned') }}" class="btn btn-sm btn-outline-warning">待处理</a>
+        <a href="{{ url_for('student.work_orders', status='processing') }}" class="btn btn-sm btn-outline-info">维修中</a>
+        <a href="{{ url_for('student.work_orders', status='completed') }}" class="btn btn-sm btn-outline-success">已完成</a>
+    </div>
+    
+    <div class="table-responsive">
+        <table class="table table-modern">
+            <thead>
+                <tr>
+                    <th>工单ID</th>
+                    <th>维修项目</th>
+                    <th>维修工</th>
+                    <th>状态</th>
+                    <th>评价</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for o in orders %}
+                <tr>
+                    <td>#{{ o.id }}</td>
+                    <td>{{ o.repair_request.repair_item.name }}</td>
+                    <td>{{ o.worker.user.name if o.worker else '-' }}</td>
+                    <td>
+                        {% if o.status == 'assigned' %}<span class="badge bg-warning badge-status">待处理</span>
+                        {% elif o.status == 'processing' %}<span class="badge bg-info badge-status">维修中</span>
+                        {% elif o.status == 'completed' %}<span class="badge bg-success badge-status">已完成</span>
+                        {% else %}<span class="badge bg-secondary badge-status">已取消</span>{% endif %}
+                    </td>
+                    <td>
+                        {% if o.review %}
+                            <span class="text-warning">
+                                {% for i in range(o.review.rating) %}★{% endfor %}
+                            </span>
+                        {% elif o.status == 'completed' %}
+                            <span class="text-muted">未评价</span>
+                        {% else %}-{% endif %}
+                    </td>
+                    <td>
+                        {% if o.status == 'completed' and not o.review %}
+                        <a href="{{ url_for('student.add_review', id=o.id) }}" class="btn btn-sm btn-warning">评价</a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% else %}
+                <tr><td colspan="6" class="text-center text-muted py-5">暂无工单</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    {% if pagination.pages > 1 %}
+    <nav><ul class="pagination justify-content-center">
+        {% for p in range(1, pagination.pages + 1) %}
+        <li class="page-item {% if p == pagination.page %}active{% endif %}">
+            <a class="page-link" href="{{ url_for('student.work_orders', page=p, status=status) }}">{{ p }}</a>
+        </li>
+        {% endfor %}
+    </ul></nav>
+    {% endif %}
+</div>
+{% endblock %}

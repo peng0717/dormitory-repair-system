@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}账单统计{% endblock %}
+{% block content %}
+<div class="content-card">
+    <h4 class="mb-4"><i class="bi bi-receipt me-2"></i>账单统计</h4>
+    
+    <div class="alert alert-success mb-4">
+        <strong>累计维修收入：</strong> ¥{{ total_amount }}
+    </div>
+    
+    <div class="table-responsive">
+        <table class="table table-modern">
+            <thead>
+                <tr>
+                    <th>账单ID</th>
+                    <th>工单</th>
+                    <th>维修项目</th>
+                    <th>宿舍</th>
+                    <th>金额</th>
+                    <th>状态</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for b in bills %}
+                <tr>
+                    <td>#{{ b.id }}</td>
+                    <td>#{{ b.order_id }}</td>
+                    <td>{{ b.order.repair_request.repair_item.name }}</td>
+                    <td>{{ b.order.repair_request.dormitory.building.name }}-{{ b.order.repair_request.dormitory.room_number }}</td>
+                    <td><strong class="text-success">¥{{ b.amount }}</strong></td>
+                    <td>
+                        {% if b.status == 'paid' %}<span class="badge bg-success">已收款</span>
+                        {% else %}<span class="badge bg-danger">待收款</span>{% endif %}
+                    </td>
+                </tr>
+                {% else %}
+                <tr><td colspan="6" class="text-center text-muted py-5">暂无账单</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    {% if pagination.pages > 1 %}
+    <nav><ul class="pagination justify-content-center">
+        {% for p in range(1, pagination.pages + 1) %}
+        <li class="page-item {% if p == pagination.page %}active{% endif %}">
+            <a class="page-link" href="{{ url_for('worker.bills', page=p) }}">{{ p }}</a>
+        </li>
+        {% endfor %}
+    </ul></nav>
+    {% endif %}
+</div>
+{% endblock %}

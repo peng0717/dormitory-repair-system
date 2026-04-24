@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}分配维修工{% endblock %}
+{% block content %}
+<div class="content-card" style="max-width: 600px;">
+    <h4 class="mb-4"><i class="bi bi-person-plus me-2"></i>分配维修工</h4>
+    
+    <div class="alert alert-info">
+        <strong>报修信息</strong><br>
+        学生：{{ repair_request.student.name }}<br>
+        宿舍：{{ repair_request.dormitory.building.name }}-{{ repair_request.dormitory.room_number }}<br>
+        项目：{{ repair_request.repair_item.name }} ({{ repair_request.repair_item.price }}元)<br>
+        问题：{{ repair_request.description }}
+    </div>
+    
+    <form method="POST">
+        <div class="mb-3">
+            <label class="form-label">选择维修工 <span class="text-danger">*</span></label>
+            <select name="worker_id" class="form-select" required>
+                <option value="">请选择维修工</option>
+                {% for w in workers %}
+                <option value="{{ w.id }}">{{ w.user.name }} - {{ w.specialty }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">备注</label>
+            <textarea name="note" class="form-control" rows="3" placeholder="可选填备注信息"></textarea>
+        </div>
+        <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-primary"><i class="bi bi-check2 me-2"></i>确认分配</button>
+            <a href="{{ url_for('admin.repair_requests') }}" class="btn btn-secondary">取消</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

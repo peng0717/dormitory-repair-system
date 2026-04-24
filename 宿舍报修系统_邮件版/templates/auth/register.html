@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block title %}注册 - 宿舍报修管理系统{% endblock %}
+{% block content %}
+<style>
+    .login-container {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    .login-card {
+        background: #fff;
+        border-radius: 20px;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        overflow: hidden;
+        width: 450px;
+        max-width: 95%;
+    }
+    .login-header {
+        background: linear-gradient(135deg, #4a90d9 0%, #5b9bd5 100%);
+        color: #fff;
+        padding: 30px;
+        text-align: center;
+    }
+    .login-body {
+        padding: 30px;
+    }
+</style>
+
+<div class="login-container">
+    <div class="login-card">
+        <div class="login-header">
+            <h3><i class="bi bi-person-plus"></i> 用户注册</h3>
+            <p class="mb-0 opacity-75">请填写以下信息注册账号</p>
+        </div>
+        <div class="login-body">
+            <form method="POST">
+                <div class="mb-3">
+                    <label class="form-label">用户名 <span class="text-danger">*</span></label>
+                    <input type="text" name="username" class="form-control" placeholder="至少3个字符" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">姓名 <span class="text-danger">*</span></label>
+                    <input type="text" name="name" class="form-control" placeholder="请输入真实姓名" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">密码 <span class="text-danger">*</span></label>
+                    <input type="password" name="password" class="form-control" placeholder="至少6个字符" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">确认密码 <span class="text-danger">*</span></label>
+                    <input type="password" name="confirm_password" class="form-control" placeholder="再次输入密码" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">手机号</label>
+                    <input type="text" name="phone" class="form-control" placeholder="选填">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">邮箱</label>
+                    <input type="email" name="email" class="form-control" placeholder="选填">
+                </div>
+                <button type="submit" class="btn btn-primary w-100 py-2">
+                    <i class="bi bi-check-circle me-2"></i>注册
+                </button>
+            </form>
+            <hr class="my-4">
+            <p class="text-center mb-0">
+                已有账号？<a href="{{ url_for('auth.login') }}">立即登录</a>
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}

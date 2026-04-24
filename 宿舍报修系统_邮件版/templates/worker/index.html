@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% block title %}维修工工作台{% endblock %}
+{% block content %}
+<h4 class="mb-4"><i class="bi bi-tools me-2"></i>维修工工作台</h4>
+
+<!-- 负责楼栋 -->
+<div class="content-card mb-4">
+    <h5 class="mb-3"><i class="bi bi-building me-2"></i>负责楼栋</h5>
+    {% for b in buildings %}
+    <span class="badge bg-primary fs-6 me-2 mb-2">{{ b.name }}</span>
+    {% else %}
+    <span class="text-muted">暂无负责楼栋</span>
+    {% endfor %}
+</div>
+
+<!-- 工单统计 -->
+<div class="row g-4 mb-4">
+    <div class="col-md-4">
+        <div class="card-stat card p-4">
+            <div class="d-flex justify-content-between">
+                <div>
+                    <h6 class="text-muted">待处理</h6>
+                    <h2 class="mb-0 text-warning">{{ assigned_count }}</h2>
+                </div>
+                <div class="icon bg-warning bg-opacity-10 text-warning"><i class="bi bi-clock"></i></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card-stat card p-4">
+            <div class="d-flex justify-content-between">
+                <div>
+                    <h6 class="text-muted">维修中</h6>
+                    <h2 class="mb-0 text-info">{{ processing_count }}</h2>
+                </div>
+                <div class="icon bg-info bg-opacity-10 text-info"><i class="bi bi-gear"></i></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card-stat card p-4">
+            <div class="d-flex justify-content-between">
+                <div>
+                    <h6 class="text-muted">已完成</h6>
+                    <h2 class="mb-0 text-success">{{ completed_count }}</h2>
+                </div>
+                <div class="icon bg-success bg-opacity-10 text-success"><i class="bi bi-check-circle"></i></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 最近工单 -->
+<div class="content-card">
+    <h5 class="mb-3"><i class="bi bi-list-check me-2"></i>最近工单</h5>
+    <div class="table-responsive">
+        <table class="table table-modern">
+            <thead>
+                <tr>
+                    <th>工单ID</th>
+                    <th>维修项目</th>
+                    <th>宿舍</th>
+                    <th>状态</th>
+                    <th>时间</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for o in recent_orders %}
+                <tr>
+                    <td>#{{ o.id }}</td>
+                    <td>{{ o.repair_request.repair_item.name }}</td>
+                    <td>{{ o.repair_request.dormitory.building.name }}-{{ o.repair_request.dormitory.room_number }}</td>
+                    <td>
+                        {% if o.status == 'assigned' %}<span class="badge bg-warning">待处理</span>
+                        {% elif o.status == 'processing' %}<span class="badge bg-info">维修中</span>
+                        {% elif o.status == 'completed' %}<span class="badge bg-success">已完成</span>
+                        {% else %}<span class="badge bg-secondary">已取消</span>{% endif %}
+                    </td>
+                    <td>{{ o.created_at.strftime('%m-%d %H:%M') }}</td>
+                </tr>
+                {% else %}
+                <tr><td colspan="5" class="text-center text-muted py-4">暂无工单</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <a href="{{ url_for('worker.work_orders') }}" class="btn btn-outline-primary">查看全部工单</a>
+</div>
+{% endblock %}

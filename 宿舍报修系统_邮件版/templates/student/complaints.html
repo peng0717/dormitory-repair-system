@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block title %}我的投诉{% endblock %}
+{% block content %}
+<div class="content-card">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4 class="mb-0"><i class="bi bi-chat-left-text me-2"></i>我的投诉</h4>
+        <a href="{{ url_for('student.complaints_add') }}" class="btn btn-primary">
+            <i class="bi bi-plus-lg me-2"></i>提交投诉
+        </a>
+    </div>
+    
+    <div class="mb-3">
+        <a href="{{ url_for('student.complaints', status='') }}" class="btn btn-sm btn-outline-secondary">全部</a>
+        <a href="{{ url_for('student.complaints', status='pending') }}" class="btn btn-sm btn-outline-warning">待处理</a>
+        <a href="{{ url_for('student.complaints', status='replied') }}" class="btn btn-sm btn-outline-info">已回复</a>
+    </div>
+    
+    <div class="table-responsive">
+        <table class="table table-modern">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>投诉内容</th>
+                    <th>回复</th>
+                    <th>状态</th>
+                    <th>时间</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for c in complaints %}
+                <tr>
+                    <td>#{{ c.id }}</td>
+                    <td><small>{{ c.content[:50] }}...</small></td>
+                    <td><small>{{ c.reply[:30] if c.reply else '-' }}...</small></td>
+                    <td>
+                        {% if c.status == 'pending' %}<span class="badge bg-warning badge-status">待处理</span>
+                        {% elif c.status == 'replied' %}<span class="badge bg-info badge-status">已回复</span>
+                        {% else %}<span class="badge bg-secondary badge-status">已关闭</span>{% endif %}
+                    </td>
+                    <td>{{ c.created_at.strftime('%m-%d %H:%M') }}</td>
+                </tr>
+                {% if c.reply %}
+                <tr class="table-light">
+                    <td></td>
+                    <td colspan="4">
+                        <strong>管理员回复：</strong>{{ c.reply }}
+                    </td>
+                </tr>
+                {% endif %}
+                {% else %}
+                <tr><td colspan="5" class="text-center text-muted py-5">暂无投诉记录</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    {% if pagination.pages > 1 %}
+    <nav><ul class="pagination justify-content-center">
+        {% for p in range(1, pagination.pages + 1) %}
+        <li class="page-item {% if p == pagination.page %}active{% endif %}">
+            <a class="page-link" href="{{ url_for('student.complaints', page=p, status=status) }}">{{ p }}</a>
+        </li>
+        {% endfor %}
+    </ul></nav>
+    {% endif %}
+</div>
+{% endblock %}

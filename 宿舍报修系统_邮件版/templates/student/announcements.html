@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}公告通知{% endblock %}
+{% block content %}
+<div class="content-card">
+    <h4 class="mb-4"><i class="bi bi-megaphone me-2"></i>公告通知</h4>
+    
+    {% for ann in announcements %}
+    <div class="card mb-3">
+        <div class="card-body">
+            <h5 class="card-title">{{ ann.title }}</h5>
+            <p class="card-text">{{ ann.content }}</p>
+            <small class="text-muted">
+                <i class="bi bi-clock me-1"></i>{{ ann.created_at.strftime('%Y-%m-%d %H:%M') }}
+            </small>
+        </div>
+    </div>
+    {% else %}
+    <div class="alert alert-info">暂无公告</div>
+    {% endfor %}
+    
+    {% if pagination.pages > 1 %}
+    <nav><ul class="pagination justify-content-center">
+        {% for p in range(1, pagination.pages + 1) %}
+        <li class="page-item {% if p == pagination.page %}active{% endif %}">
+            <a class="page-link" href="{{ url_for('student.announcements', page=p) }}">{{ p }}</a>
+        </li>
+        {% endfor %}
+    </ul></nav>
+    {% endif %}
+</div>
+{% endblock %}

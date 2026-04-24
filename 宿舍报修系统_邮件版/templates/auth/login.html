@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% block title %}登录 - 宿舍报修管理系统{% endblock %}
+{% block content %}
+<style>
+    .login-container {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    .login-card {
+        background: #fff;
+        border-radius: 20px;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        overflow: hidden;
+        width: 420px;
+        max-width: 95%;
+    }
+    .login-header {
+        background: linear-gradient(135deg, #4a90d9 0%, #5b9bd5 100%);
+        color: #fff;
+        padding: 40px 30px;
+        text-align: center;
+    }
+    .login-header h2 {
+        margin: 0;
+        font-weight: 600;
+    }
+    .login-body {
+        padding: 40px 30px;
+    }
+    .form-control:focus {
+        border-color: #4a90d9;
+        box-shadow: 0 0 0 0.2rem rgba(74, 144, 217, 0.25);
+    }
+    .btn-login {
+        background: linear-gradient(135deg, #4a90d9 0%, #5b9bd5 100%);
+        border: none;
+        padding: 12px;
+        font-weight: 600;
+    }
+    .btn-login:hover {
+        background: linear-gradient(135deg, #3a7bc8 0%, #4a8ac5 100%);
+        color: #fff;
+    }
+    .login-footer {
+        text-align: center;
+        padding: 20px;
+        background: #f8f9fa;
+    }
+</style>
+
+<div class="login-container">
+    <div class="login-card">
+        <div class="login-header">
+            <i class="bi bi-house-gear-fill fs-1 mb-3"></i>
+            <h2>宿舍报修管理系统</h2>
+            <p class="mb-0 opacity-75">Dormitory Repair Management</p>
+        </div>
+        <div class="login-body">
+            <form method="POST">
+                <div class="mb-4">
+                    <label class="form-label">用户名</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light"><i class="bi bi-person"></i></span>
+                        <input type="text" name="username" class="form-control" placeholder="请输入用户名" required autofocus>
+                    </div>
+                </div>
+                <div class="mb-4">
+                    <label class="form-label">密码</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light"><i class="bi bi-lock"></i></span>
+                        <input type="password" name="password" class="form-control" placeholder="请输入密码" required>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-login w-100 text-white">
+                    <i class="bi bi-box-arrow-in-right me-2"></i>登 录
+                </button>
+            </form>
+        </div>
+        <div class="login-footer">
+            <p class="mb-2">默认账号：<strong>admin</strong> / <strong>admin123</strong></p>
+            <a href="{{ url_for('auth.register') }}" class="text-decoration-none">没有账号？立即注册</a>
+            <span class="mx-2">|</span>
+            <a href="{{ url_for('auth.forgot_password') }}" class="text-decoration-none">忘记密码？</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

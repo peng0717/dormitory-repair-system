@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}宿舍报修管理系统{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #4a90d9;
+            --sidebar-bg: #2c3e50;
+            --sidebar-hover: #34495e;
+        }
+        body {
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background-color: #f5f6fa;
+        }
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            width: 240px;
+            background: var(--sidebar-bg);
+            color: #fff;
+            padding-top: 20px;
+            overflow-y: auto;
+        }
+        .sidebar .logo {
+            text-align: center;
+            padding: 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 10px;
+        }
+        .sidebar .logo h4 {
+            margin: 0;
+            color: #fff;
+        }
+        .sidebar .user-info {
+            text-align: center;
+            padding: 15px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .sidebar .nav-link {
+            color: rgba(255,255,255,0.8);
+            padding: 12px 20px;
+            margin: 2px 10px;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+        .sidebar .nav-link:hover {
+            background: var(--sidebar-hover);
+            color: #fff;
+        }
+        .sidebar .nav-link.active {
+            background: var(--primary-color);
+            color: #fff;
+        }
+        .sidebar .nav-link i {
+            margin-right: 10px;
+        }
+        .main-content {
+            margin-left: 240px;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        .top-bar {
+            background: #fff;
+            padding: 15px 25px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        .card-stat {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            transition: transform 0.3s;
+        }
+        .card-stat:hover {
+            transform: translateY(-5px);
+        }
+        .card-stat .icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+        }
+        .content-card {
+            background: #fff;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        .table-modern {
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+        .table-modern thead th {
+            background: #f8f9fa;
+            border: none;
+            padding: 15px;
+            font-weight: 600;
+            color: #555;
+        }
+        .table-modern tbody td {
+            border: none;
+            border-bottom: 1px solid #eee;
+            padding: 15px;
+            vertical-align: middle;
+        }
+        .table-modern tbody tr:hover {
+            background: #f8f9fa;
+        }
+        .btn-primary {
+            background: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+        .btn-primary:hover {
+            background: #3a7bc8;
+            border-color: #3a7bc8;
+        }
+        .badge-status {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+        }
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 200px;
+            }
+            .main-content {
+                margin-left: 200px;
+            }
+        }
+        @media (max-width: 576px) {
+            .sidebar {
+                display: none;
+            }
+            .main-content {
+                margin-left: 0;
+            }
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    {% if current_user.is_authenticated %}
+    <!-- 侧边栏 -->
+    <div class="sidebar">
+        <div class="logo">
+            <h4><i class="bi bi-house-gear"></i> 宿舍报修</h4>
+        </div>
+        <div class="user-info">
+            <small>{{ current_user.name }}</small><br>
+            <span class="badge bg-{{ 'primary' if current_user.role == 'admin' else ('success' if current_user.role == 'worker' else 'info') }}">
+                {{ '管理员' if current_user.role == 'admin' else ('维修工' if current_user.role == 'worker' else '学生') }}
+            </span>
+        </div>
+        
+        {% if current_user.role == 'admin' %}
+        <!-- 管理员导航 -->
+        <nav class="nav flex-column mt-3">
+            <a class="nav-link {% if request.endpoint == 'admin.index' %}active{% endif %}" href="{{ url_for('admin.index') }}">
+                <i class="bi bi-speedometer2"></i> 首页统计
+            </a>
+            <a class="nav-link {% if 'students' in request.endpoint %}active{% endif %}" href="{{ url_for('admin.students') }}">
+                <i class="bi bi-people"></i> 学生管理
+            </a>
+            <a class="nav-link {% if 'workers' in request.endpoint %}active{% endif %}" href="{{ url_for('admin.workers') }}">
+                <i class="bi bi-tools"></i> 维修人员
+            </a>
+            <a class="nav-link {% if request.endpoint == 'admin.buildings' %}active{% endif %}" href="{{ url_for('admin.buildings') }}">
+                <i class="bi bi-building"></i> 楼栋管理
+            </a>
+            <a class="nav-link {% if request.endpoint == 'admin.dormitories' %}active{% endif %}" href="{{ url_for('admin.dormitories') }}">
+                <i class="bi bi-house"></i> 宿舍管理
+            </a>
+            <a class="nav-link {% if request.endpoint == 'admin.repair_requests' %}active{% endif %}" href="{{ url_for('admin.repair_requests') }}">
+                <i class="bi bi-journal-text"></i> 报修申请
+            </a>
+            <a class="nav-link {% if request.endpoint == 'admin.work_orders' %}active{% endif %}" href="{{ url_for('admin.work_orders') }}">
+                <i class="bi bi-clipboard-check"></i> 工单管理
+            </a>
+            <a class="nav-link {% if request.endpoint == 'admin.bills' %}active{% endif %}" href="{{ url_for('admin.bills') }}">
+                <i class="bi bi-receipt"></i> 账单管理
+            </a>
+            <a class="nav-link {% if request.endpoint == 'admin.repair_items' %}active{% endif %}" href="{{ url_for('admin.repair_items') }}">
+                <i class="bi bi-currency-dollar"></i> 维修价格
+            </a>
+            <a class="nav-link {% if request.endpoint == 'admin.complaints' %}active{% endif %}" href="{{ url_for('admin.complaints') }}">
+                <i class="bi bi-chat-left-text"></i> 投诉反馈
+            </a>
+            <a class="nav-link {% if request.endpoint == 'admin.announcements' %}active{% endif %}" href="{{ url_for('admin.announcements') }}">
+                <i class="bi bi-megaphone"></i> 知识公告
+            </a>
+        </nav>
+        
+        {% elif current_user.role == 'worker' %}
+        <!-- 维修工导航 -->
+        <nav class="nav flex-column mt-3">
+            <a class="nav-link {% if request.endpoint == 'worker.index' %}active{% endif %}" href="{{ url_for('worker.index') }}">
+                <i class="bi bi-speedometer2"></i> 工作台
+            </a>
+            <a class="nav-link {% if request.endpoint == 'worker.work_orders' %}active{% endif %}" href="{{ url_for('worker.work_orders') }}">
+                <i class="bi bi-clipboard-check"></i> 工单管理
+            </a>
+            <a class="nav-link {% if request.endpoint == 'worker.bills' %}active{% endif %}" href="{{ url_for('worker.bills') }}">
+                <i class="bi bi-receipt"></i> 账单统计
+            </a>
+            <a class="nav-link {% if request.endpoint == 'worker.repair_items' %}active{% endif %}" href="{{ url_for('worker.repair_items') }}">
+                <i class="bi bi-currency-dollar"></i> 维修价格
+            </a>
+        </nav>
+        
+        {% else %}
+        <!-- 学生导航 -->
+        <nav class="nav flex-column mt-3">
+            <a class="nav-link {% if request.endpoint == 'student.index' %}active{% endif %}" href="{{ url_for('student.index') }}">
+                <i class="bi bi-house"></i> 我的首页
+            </a>
+            <a class="nav-link {% if request.endpoint == 'student.repair_request_add' %}active{% endif %}" href="{{ url_for('student.repair_request_add') }}">
+                <i class="bi bi-plus-circle"></i> 提交报修
+            </a>
+            <a class="nav-link {% if request.endpoint == 'student.repair_requests' %}active{% endif %}" href="{{ url_for('student.repair_requests') }}">
+                <i class="bi bi-journal-text"></i> 报修记录
+            </a>
+            <a class="nav-link {% if request.endpoint == 'student.work_orders' %}active{% endif %}" href="{{ url_for('student.work_orders') }}">
+                <i class="bi bi-clipboard-check"></i> 工单进度
+            </a>
+            <a class="nav-link {% if request.endpoint == 'student.bills' %}active{% endif %}" href="{{ url_for('student.bills') }}">
+                <i class="bi bi-receipt"></i> 我的账单
+            </a>
+            <a class="nav-link {% if request.endpoint == 'student.complaints' or request.endpoint == 'student.complaints_add' %}active{% endif %}" href="{{ url_for('student.complaints') }}">
+                <i class="bi bi-chat-left-text"></i> 投诉反馈
+            </a>
+            <a class="nav-link {% if request.endpoint == 'student.announcements' %}active{% endif %}" href="{{ url_for('student.announcements') }}">
+                <i class="bi bi-megaphone"></i> 公告通知
+            </a>
+        </nav>
+        {% endif %}
+        
+        <!-- 底部菜单 -->
+        <div class="mt-auto p-3 border-top border-secondary">
+            <a class="nav-link {% if request.endpoint == 'auth.profile' %}active{% endif %}" href="{{ url_for('auth.profile') }}">
+                <i class="bi bi-person"></i> 个人信息
+            </a>
+            <a class="nav-link text-danger" href="{{ url_for('auth.logout') }}">
+                <i class="bi bi-box-arrow-right"></i> 退出登录
+            </a>
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- 主内容区 -->
+    <main class="main-content">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+        {% block content %}{% endblock %}
+    </main>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

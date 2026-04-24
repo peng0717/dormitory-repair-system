@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block title %}我的账单{% endblock %}
+{% block content %}
+<div class="content-card">
+    <h4 class="mb-4"><i class="bi bi-receipt me-2"></i>我的账单</h4>
+    
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="alert alert-danger">
+                <strong>待缴费：</strong> ¥{{ total_unpaid }}
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="alert alert-success">
+                <strong>已缴费：</strong> ¥{{ total_paid }}
+            </div>
+        </div>
+    </div>
+    
+    <div class="mb-3">
+        <a href="{{ url_for('student.bills', status='') }}" class="btn btn-sm btn-outline-secondary">全部</a>
+        <a href="{{ url_for('student.bills', status='unpaid') }}" class="btn btn-sm btn-outline-danger">待缴费</a>
+        <a href="{{ url_for('student.bills', status='paid') }}" class="btn btn-sm btn-outline-success">已缴费</a>
+    </div>
+    
+    <div class="table-responsive">
+        <table class="table table-modern">
+            <thead>
+                <tr>
+                    <th>账单ID</th>
+                    <th>维修项目</th>
+                    <th>维修工</th>
+                    <th>金额</th>
+                    <th>状态</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for b in bills %}
+                <tr>
+                    <td>#{{ b.id }}</td>
+                    <td>{{ b.order.repair_request.repair_item.name }}</td>
+                    <td>{{ b.order.worker.user.name if b.order.worker else '-' }}</td>
+                    <td><strong class="text-success">¥{{ b.amount }}</strong></td>
+                    <td>
+                        {% if b.status == 'paid' %}<span class="badge bg-success badge-status">已支付</span>
+                        {% else %}<span class="badge bg-danger badge-status">待支付</span>{% endif %}
+                    </td>
+                    <td>
+                        {% if b.status == 'unpaid' %}
+                        <form method="POST" action="{{ url_for('student.pay_bill', id=b.id) }}" style="display:inline;">
+                            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('确认缴费 ¥{{ b.amount }}？')">
+                                <i class="bi bi-credit-card"></i> 缴费
+                            </button>
+                        </form>
+                        {% else %}
+                        {{ b.paid_at.strftime('%Y-%m-%d') if b.paid_at else '-' }}
+                        {% endif %}
+                    </td>
+                </tr>
+                {% else %}
+                <tr><td colspan="6" class="text-center text-muted py-5">暂无账单</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    {% if pagination.pages > 1 %}
+    <nav><ul class="pagination justify-content-center">
+        {% for p in range(1, pagination.pages + 1) %}
+        <li class="page-item {% if p == pagination.page %}active{% endif %}">
+            <a class="page-link" href="{{ url_for('student.bills', page=p, status=status) }}">{{ p }}</a>
+        </li>
+        {% endfor %}
+    </ul></nav>
+    {% endif %}
+</div>
+{% endblock %}

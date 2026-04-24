@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block title %}{{ '编辑' if worker else '添加' }}维修工{% endblock %}
+{% block content %}
+<div class="content-card" style="max-width: 700px;">
+    <h4 class="mb-4"><i class="bi bi-tools me-2"></i>{{ '编辑' if worker else '添加' }}维修工</h4>
+    <form method="POST">
+        {% if not worker %}
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label class="form-label">用户名 <span class="text-danger">*</span></label>
+                <input type="text" name="username" class="form-control" required>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label class="form-label">初始密码</label>
+                <input type="text" name="password" class="form-control" value="123456">
+            </div>
+        </div>
+        {% endif %}
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label class="form-label">姓名 <span class="text-danger">*</span></label>
+                <input type="text" name="name" class="form-control" value="{{ worker.name if worker else '' }}" required>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label class="form-label">专业技能</label>
+                <input type="text" name="specialty" class="form-control" value="{{ worker_obj.specialty if worker_obj else '' }}" placeholder="如：水电维修">
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label class="form-label">手机号</label>
+                <input type="text" name="phone" class="form-control" value="{{ worker.phone or '' }}">
+            </div>
+            <div class="col-md-6 mb-3">
+                <label class="form-label">邮箱</label>
+                <input type="email" name="email" class="form-control" value="{{ worker.email or '' }}">
+            </div>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">负责楼栋</label>
+            <div class="border rounded p-3">
+                {% for b in buildings %}
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" name="building_ids" value="{{ b.id }}" id="b{{ b.id }}"
+                    {% if worker_obj and b.id in worker_obj.buildings|map(attribute='building_id')|list %}checked{% endif %}>
+                    <label class="form-check-label" for="b{{ b.id }}">{{ b.name }}</label>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% if worker %}
+        <div class="mb-3">
+            <label class="form-label">重置密码</label>
+            <input type="text" name="password" class="form-control" placeholder="留空则不修改">
+        </div>
+        {% endif %}
+        <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-primary"><i class="bi bi-check2 me-2"></i>保存</button>
+            <a href="{{ url_for('admin.workers') }}" class="btn btn-secondary">取消</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block title %}工单管理{% endblock %}
+{% block content %}
+<div class="content-card">
+    <h4 class="mb-4"><i class="bi bi-clipboard-check me-2"></i>工单管理</h4>
+    
+    <div class="mb-3">
+        <a href="{{ url_for('worker.work_orders', status='') }}" class="btn btn-sm btn-outline-secondary">全部</a>
+        <a href="{{ url_for('worker.work_orders', status='assigned') }}" class="btn btn-sm btn-outline-warning">待处理</a>
+        <a href="{{ url_for('worker.work_orders', status='processing') }}" class="btn btn-sm btn-outline-info">维修中</a>
+        <a href="{{ url_for('worker.work_orders', status='completed') }}" class="btn btn-sm btn-outline-success">已完成</a>
+    </div>
+    
+    <div class="table-responsive">
+        <table class="table table-modern">
+            <thead>
+                <tr>
+                    <th>工单ID</th>
+                    <th>维修项目</th>
+                    <th>宿舍</th>
+                    <th>问题描述</th>
+                    <th>状态</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for o in orders %}
+                <tr>
+                    <td>#{{ o.id }}</td>
+                    <td>{{ o.repair_request.repair_item.name }}</td>
+                    <td>{{ o.repair_request.dormitory.building.name }}-{{ o.repair_request.dormitory.room_number }}</td>
+                    <td><small>{{ o.repair_request.description[:30] }}...</small></td>
+                    <td>
+                        {% if o.status == 'assigned' %}<span class="badge bg-warning badge-status">待处理</span>
+                        {% elif o.status == 'processing' %}<span class="badge bg-info badge-status">维修中</span>
+                        {% elif o.status == 'completed' %}<span class="badge bg-success badge-status">已完成</span>
+                        {% else %}<span class="badge bg-secondary badge-status">已取消</span>{% endif %}
+                    </td>
+                    <td>
+                        {% if o.status == 'assigned' %}
+                        <form method="POST" action="{{ url_for('worker.start_work', id=o.id) }}" style="display:inline;">
+                            <textarea name="note" class="form-control mb-2" rows="2" placeholder="备注(可选)"></textarea>
+                            <button type="submit" class="btn btn-sm btn-primary">开始维修</button>
+                        </form>
+                        {% elif o.status == 'processing' %}
+                        <form method="POST" action="{{ url_for('worker.complete_work', id=o.id) }}" style="display:inline;">
+                            <textarea name="note" class="form-control mb-2" rows="2" placeholder="维修说明(可选)"></textarea>
+                            <button type="submit" class="btn btn-sm btn-success">完成维修</button>
+                        </form>
+                        {% endif %}
+                        {% if o.status in ['assigned', 'processing'] %}
+                        <form method="POST" action="{{ url_for('worker.cancel_work', id=o.id) }}" style="display:inline;">
+                            <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('确定取消？')">取消</button>
+                        </form>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% else %}
+                <tr><td colspan="6" class="text-center text-muted py-5">暂无工单</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    {% if pagination.pages > 1 %}
+    <nav><ul class="pagination justify-content-center">
+        {% for p in range(1, pagination.pages + 1) %}
+        <li class="page-item {% if p == pagination.page %}active{% endif %}">
+            <a class="page-link" href="{{ url_for('worker.work_orders', page=p, status=status) }}">{{ p }}</a>
+        </li>
+        {% endfor %}
+    </ul></nav>
+    {% endif %}
+</div>
+{% endblock %}

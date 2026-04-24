@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}楼栋管理{% endblock %}
+{% block content %}
+<div class="content-card">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4 class="mb-0"><i class="bi bi-building me-2"></i>楼栋管理</h4>
+        <a href="{{ url_for('admin.buildings_add') }}" class="btn btn-primary">
+            <i class="bi bi-plus-lg me-2"></i>添加楼栋
+        </a>
+    </div>
+    
+    <div class="table-responsive">
+        <table class="table table-modern">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>楼栋名称</th>
+                    <th>楼层数</th>
+                    <th>每层房间数</th>
+                    <th>总房间数</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for building in buildings %}
+                <tr>
+                    <td>{{ building.id }}</td>
+                    <td>{{ building.name }}</td>
+                    <td>{{ building.floors }} 层</td>
+                    <td>{{ building.rooms_per_floor }} 间</td>
+                    <td>{{ building.floors * building.rooms_per_floor }} 间</td>
+                    <td>
+                        <a href="{{ url_for('admin.buildings_edit', id=building.id) }}" class="btn btn-sm btn-outline-primary">
+                            <i class="bi bi-pencil"></i>
+                        </a>
+                        <form method="POST" action="{{ url_for('admin.buildings_delete', id=building.id) }}" style="display:inline;">
+                            <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('确定要删除吗？')">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="6" class="text-center text-muted py-5">暂无楼栋数据</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    {% if pagination.pages > 1 %}
+    <nav>
+        <ul class="pagination justify-content-center">
+            {% for p in range(1, pagination.pages + 1) %}
+            <li class="page-item {% if p == pagination.page %}active{% endif %}">
+                <a class="page-link" href="{{ url_for('admin.buildings', page=p) }}">{{ p }}</a>
+            </li>
+            {% endfor %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+{% endblock %}

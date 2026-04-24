@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}提交报修{% endblock %}
+{% block content %}
+<div class="content-card" style="max-width: 700px;">
+    <h4 class="mb-4"><i class="bi bi-plus-circle me-2"></i>提交报修申请</h4>
+    
+    <form method="POST">
+        <div class="mb-3">
+            <label class="form-label">维修类型 <span class="text-danger">*</span></label>
+            <select name="repair_item_id" class="form-select" required>
+                <option value="">请选择维修类型</option>
+                {% for item in repair_items %}
+                <option value="{{ item.id }}">{{ item.name }} - ¥{{ item.price }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">问题描述 <span class="text-danger">*</span></label>
+            <textarea name="description" class="form-control" rows="5" placeholder="请详细描述需要维修的问题..." required></textarea>
+        </div>
+        
+        <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-primary"><i class="bi bi-send me-2"></i>提交申请</button>
+            <a href="{{ url_for('student.repair_requests') }}" class="btn btn-secondary">取消</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

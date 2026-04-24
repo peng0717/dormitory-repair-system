@@ -1,0 +1,176 @@
+{% extends "base.html" %}
+{% block title %}管理员首页{% endblock %}
+{% block content %}
+<h4 class="mb-4"><i class="bi bi-speedometer2 me-2"></i>数据统计概览</h4>
+
+<!-- 统计卡片 -->
+<div class="row g-4 mb-4">
+    <div class="col-md-6 col-lg-3">
+        <div class="card-stat card p-4">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="text-muted mb-2">学生总数</h6>
+                    <h2 class="mb-0">{{ total_students }}</h2>
+                </div>
+                <div class="icon bg-primary bg-opacity-10 text-primary">
+                    <i class="bi bi-people"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-3">
+        <div class="card-stat card p-4">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="text-muted mb-2">维修人员</h6>
+                    <h2 class="mb-0">{{ total_workers }}</h2>
+                </div>
+                <div class="icon bg-success bg-opacity-10 text-success">
+                    <i class="bi bi-tools"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-3">
+        <div class="card-stat card p-4">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="text-muted mb-2">报修申请</h6>
+                    <h2 class="mb-0">{{ total_requests }}</h2>
+                </div>
+                <div class="icon bg-warning bg-opacity-10 text-warning">
+                    <i class="bi bi-journal-text"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-3">
+        <div class="card-stat card p-4">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="text-muted mb-2">待处理投诉</h6>
+                    <h2 class="mb-0">{{ pending_complaints }}</h2>
+                </div>
+                <div class="icon bg-danger bg-opacity-10 text-danger">
+                    <i class="bi bi-exclamation-triangle"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 工单和账单统计 -->
+<div class="row g-4 mb-4">
+    <div class="col-md-6">
+        <div class="content-card">
+            <h5 class="mb-4"><i class="bi bi-clipboard-check me-2"></i>工单状态统计</h5>
+            <div class="row text-center">
+                <div class="col-4">
+                    <div class="p-3 bg-warning bg-opacity-10 rounded">
+                        <h3 class="text-warning mb-1">{{ pending_orders }}</h3>
+                        <small>待处理</small>
+                    </div>
+                </div>
+                <div class="col-4">
+                    <div class="p-3 bg-info bg-opacity-10 rounded">
+                        <h3 class="text-info mb-1">{{ processing_orders }}</h3>
+                        <small>维修中</small>
+                    </div>
+                </div>
+                <div class="col-4">
+                    <div class="p-3 bg-success bg-opacity-10 rounded">
+                        <h3 class="text-success mb-1">{{ completed_orders }}</h3>
+                        <small>已完成</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="content-card">
+            <h5 class="mb-4"><i class="bi bi-receipt me-2"></i>本月账单统计</h5>
+            <div class="row text-center">
+                <div class="col-6">
+                    <div class="p-3 bg-success bg-opacity-10 rounded">
+                        <h3 class="text-success mb-1">¥{{ monthly_income }}</h3>
+                        <small>已收款</small>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="p-3 bg-danger bg-opacity-10 rounded">
+                        <h3 class="text-danger mb-1">¥{{ monthly_unpaid }}</h3>
+                        <small>待收款</small>
+                    </div>
+                </div>
+            </div>
+            <div class="text-center mt-3">
+                <div class="badge bg-secondary fs-6">
+                    <i class="bi bi-star me-1"></i>平均评分: {{ avg_rating }}分
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 楼栋信息 -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="content-card">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h5 class="mb-0"><i class="bi bi-building me-2"></i>楼栋统计</h5>
+            </div>
+            <div class="row text-center">
+                <div class="col-md-4">
+                    <h2 class="text-primary">{{ total_buildings }}</h2>
+                    <small class="text-muted">楼栋数量</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 最近工单 -->
+<div class="content-card">
+    <h5 class="mb-4"><i class="bi bi-clock-history me-2"></i>最近工单</h5>
+    <div class="table-responsive">
+        <table class="table table-modern">
+            <thead>
+                <tr>
+                    <th>工单ID</th>
+                    <th>学生</th>
+                    <th>维修项目</th>
+                    <th>维修工</th>
+                    <th>状态</th>
+                    <th>创建时间</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in recent_orders %}
+                <tr>
+                    <td>#{{ order.id }}</td>
+                    <td>{{ order.repair_request.student.name }}</td>
+                    <td>{{ order.repair_request.repair_item.name }}</td>
+                    <td>{{ order.worker.user.name if order.worker else '-' }}</td>
+                    <td>
+                        {% if order.status == 'assigned' %}
+                            <span class="badge bg-warning badge-status">待处理</span>
+                        {% elif order.status == 'processing' %}
+                            <span class="badge bg-info badge-status">维修中</span>
+                        {% elif order.status == 'completed' %}
+                            <span class="badge bg-success badge-status">已完成</span>
+                        {% else %}
+                            <span class="badge bg-secondary badge-status">已取消</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ order.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="6" class="text-center text-muted py-4">暂无工单数据</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

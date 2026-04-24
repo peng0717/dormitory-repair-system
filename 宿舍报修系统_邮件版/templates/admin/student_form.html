@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}{{ '编辑' if student else '添加' }}学生{% endblock %}
+{% block content %}
+<div class="content-card" style="max-width: 600px;">
+    <h4 class="mb-4"><i class="bi bi-person me-2"></i>{{ '编辑' if student else '添加' }}学生</h4>
+    <form method="POST">
+        {% if not student %}
+        <div class="mb-3">
+            <label class="form-label">用户名 <span class="text-danger">*</span></label>
+            <input type="text" name="username" class="form-control" required>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">初始密码</label>
+            <input type="text" name="password" class="form-control" value="123456">
+            <small class="text-muted">默认为123456</small>
+        </div>
+        {% endif %}
+        <div class="mb-3">
+            <label class="form-label">姓名 <span class="text-danger">*</span></label>
+            <input type="text" name="name" class="form-control" value="{{ student.name if student else '' }}" required>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">手机号</label>
+            <input type="text" name="phone" class="form-control" value="{{ student.phone or '' }}">
+        </div>
+        <div class="mb-3">
+            <label class="form-label">邮箱</label>
+            <input type="email" name="email" class="form-control" value="{{ student.email or '' }}">
+        </div>
+        {% if not student %}
+        <div class="mb-3">
+            <label class="form-label">分配宿舍</label>
+            <select name="dormitory_id" class="form-select">
+                <option value="">暂不分配</option>
+                {% for d in dormitories %}
+                <option value="{{ d.id }}">{{ d.building.name }} - {{ d.room_number }} ({{ d.current_count }}/{{ d.capacity }})</option>
+                {% endfor %}
+            </select>
+        </div>
+        {% endif %}
+        {% if student %}
+        <div class="mb-3">
+            <label class="form-label">重置密码</label>
+            <input type="text" name="password" class="form-control" placeholder="留空则不修改">
+        </div>
+        {% endif %}
+        <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-primary"><i class="bi bi-check2 me-2"></i>保存</button>
+            <a href="{{ url_for('admin.students') }}" class="btn btn-secondary">取消</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

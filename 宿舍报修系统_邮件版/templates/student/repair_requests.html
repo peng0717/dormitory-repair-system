@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}我的报修{% endblock %}
+{% block content %}
+<div class="content-card">
+    <h4 class="mb-4"><i class="bi bi-journal-text me-2"></i>我的报修记录</h4>
+    
+    <div class="mb-3">
+        <a href="{{ url_for('student.repair_requests', status='') }}" class="btn btn-sm btn-outline-secondary">全部</a>
+        <a href="{{ url_for('student.repair_requests', status='pending') }}" class="btn btn-sm btn-outline-warning">待分配</a>
+        <a href="{{ url_for('student.repair_requests', status='processing') }}" class="btn btn-sm btn-outline-info">处理中</a>
+        <a href="{{ url_for('student.repair_requests', status='completed') }}" class="btn btn-sm btn-outline-success">已完成</a>
+    </div>
+    
+    <div class="table-responsive">
+        <table class="table table-modern">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>维修项目</th>
+                    <th>宿舍</th>
+                    <th>问题描述</th>
+                    <th>状态</th>
+                    <th>时间</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in requests %}
+                <tr>
+                    <td>#{{ r.id }}</td>
+                    <td>{{ r.repair_item.name }}</td>
+                    <td>{{ r.dormitory.building.name }}-{{ r.dormitory.room_number }}</td>
+                    <td><small>{{ r.description[:30] }}...</small></td>
+                    <td>
+                        {% if r.status == 'pending' %}<span class="badge bg-warning badge-status">待分配</span>
+                        {% elif r.status == 'assigned' %}<span class="badge bg-info badge-status">已分配</span>
+                        {% elif r.status == 'processing' %}<span class="badge bg-primary badge-status">处理中</span>
+                        {% elif r.status == 'completed' %}<span class="badge bg-success badge-status">已完成</span>
+                        {% else %}<span class="badge bg-secondary badge-status">已取消</span>{% endif %}
+                    </td>
+                    <td>{{ r.created_at.strftime('%m-%d %H:%M') }}</td>
+                </tr>
+                {% else %}
+                <tr><td colspan="6" class="text-center text-muted py-5">暂无报修记录</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    {% if pagination.pages > 1 %}
+    <nav><ul class="pagination justify-content-center">
+        {% for p in range(1, pagination.pages + 1) %}
+        <li class="page-item {% if p == pagination.page %}active{% endif %}">
+            <a class="page-link" href="{{ url_for('student.repair_requests', page=p, status=status) }}">{{ p }}</a>
+        </li>
+        {% endfor %}
+    </ul></nav>
+    {% endif %}
+</div>
+{% endblock %}

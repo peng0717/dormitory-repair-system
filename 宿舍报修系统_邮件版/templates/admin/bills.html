@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block title %}账单管理{% endblock %}
+{% block content %}
+<div class="content-card">
+    <h4 class="mb-4"><i class="bi bi-receipt me-2"></i>账单管理</h4>
+    
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="alert alert-success">
+                <strong>已收款：</strong> ¥{{ total_paid }}
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="alert alert-danger">
+                <strong>待收款：</strong> ¥{{ total_unpaid }}
+            </div>
+        </div>
+    </div>
+    
+    <div class="mb-3">
+        <a href="{{ url_for('admin.bills', status='') }}" class="btn btn-sm btn-outline-secondary {% if not status %}active{% endif %}">全部</a>
+        <a href="{{ url_for('admin.bills', status='paid') }}" class="btn btn-sm btn-outline-success {% if status == 'paid' %}active{% endif %}">已支付</a>
+        <a href="{{ url_for('admin.bills', status='unpaid') }}" class="btn btn-sm btn-outline-danger {% if status == 'unpaid' %}active{% endif %}">未支付</a>
+    </div>
+    
+    <div class="table-responsive">
+        <table class="table table-modern">
+            <thead>
+                <tr>
+                    <th>账单ID</th>
+                    <th>工单</th>
+                    <th>金额</th>
+                    <th>状态</th>
+                    <th>创建时间</th>
+                    <th>支付时间</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for b in bills %}
+                <tr>
+                    <td>#{{ b.id }}</td>
+                    <td>#{{ b.order_id }} - {{ b.order.repair_request.repair_item.name }}</td>
+                    <td><strong class="text-success">¥{{ b.amount }}</strong></td>
+                    <td>
+                        {% if b.status == 'paid' %}
+                            <span class="badge bg-success badge-status">已支付</span>
+                        {% else %}
+                            <span class="badge bg-danger badge-status">未支付</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ b.created_at.strftime('%Y-%m-%d') }}</td>
+                    <td>{{ b.paid_at.strftime('%Y-%m-%d') if b.paid_at else '-' }}</td>
+                </tr>
+                {% else %}
+                <tr><td colspan="6" class="text-center text-muted py-5">暂无账单</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    {% if pagination.pages > 1 %}
+    <nav><ul class="pagination justify-content-center">
+        {% for p in range(1, pagination.pages + 1) %}
+        <li class="page-item {% if p == pagination.page %}active{% endif %}">
+            <a class="page-link" href="{{ url_for('admin.bills', page=p, status=status) }}">{{ p }}</a>
+        </li>
+        {% endfor %}
+    </ul></nav>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block title %}工单管理{% endblock %}
+{% block content %}
+<div class="content-card">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4 class="mb-0"><i class="bi bi-clipboard-check me-2"></i>工单管理</h4>
+        <div>
+            <a href="{{ url_for('admin.work_orders', status='') }}" class="btn btn-sm btn-outline-secondary">全部</a>
+            <a href="{{ url_for('admin.work_orders', status='assigned') }}" class="btn btn-sm btn-outline-warning">待处理</a>
+            <a href="{{ url_for('admin.work_orders', status='processing') }}" class="btn btn-sm btn-outline-info">维修中</a>
+            <a href="{{ url_for('admin.work_orders', status='completed') }}" class="btn btn-sm btn-outline-success">已完成</a>
+        </div>
+    </div>
+    
+    <div class="table-responsive">
+        <table class="table table-modern">
+            <thead>
+                <tr>
+                    <th>工单ID</th>
+                    <th>报修学生</th>
+                    <th>维修项目</th>
+                    <th>维修工</th>
+                    <th>状态</th>
+                    <th>创建时间</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for o in orders %}
+                <tr>
+                    <td>#{{ o.id }}</td>
+                    <td>{{ o.repair_request.student.name }}</td>
+                    <td>{{ o.repair_request.repair_item.name }}</td>
+                    <td>{{ o.worker.user.name if o.worker else '-' }}</td>
+                    <td>
+                        {% if o.status == 'assigned' %}<span class="badge bg-warning badge-status">待处理</span>
+                        {% elif o.status == 'processing' %}<span class="badge bg-info badge-status">维修中</span>
+                        {% elif o.status == 'completed' %}<span class="badge bg-success badge-status">已完成</span>
+                        {% else %}<span class="badge bg-secondary badge-status">已取消</span>{% endif %}
+                    </td>
+                    <td>{{ o.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                    <td>
+                        {% if o.status in ['assigned', 'processing'] %}
+                        <form method="POST" action="{{ url_for('admin.cancel_order', id=o.id) }}" style="display:inline;">
+                            <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('确定要取消吗？')">取消</button>
+                        </form>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% else %}
+                <tr><td colspan="7" class="text-center text-muted py-5">暂无工单</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    {% if pagination.pages > 1 %}
+    <nav><ul class="pagination justify-content-center">
+        {% for p in range(1, pagination.pages + 1) %}
+        <li class="page-item {% if p == pagination.page %}active{% endif %}">
+            <a class="page-link" href="{{ url_for('admin.work_orders', page=p, status=status) }}">{{ p }}</a>
+        </li>
+        {% endfor %}
+    </ul></nav>
+    {% endif %}
+</div>
+{% endblock %}
