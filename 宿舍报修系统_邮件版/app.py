@@ -39,8 +39,8 @@ def create_app():
     app.config['MAIL_SERVER'] = os.environ.get('MAIL_SERVER', 'smtp.qq.com')
     app.config['MAIL_PORT'] = int(os.environ.get('MAIL_PORT', 587))
     app.config['MAIL_USE_TLS'] = os.environ.get('MAIL_USE_TLS', 'True').lower() == 'true'
-    app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USERNAME', '')  # 发送邮箱
-    app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD', '')  # SMTP授权码
+    app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USERNAME', '')  # 2790885462@qq.com
+    app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD', '')  # fsjbunqpymeddejc
     app.config['MAIL_DEFAULT_SENDER'] = os.environ.get('MAIL_DEFAULT_SENDER', '宿舍报修系统 <noreply@dormitory.com>')
     
     def send_email(to_email, subject, html_content):
