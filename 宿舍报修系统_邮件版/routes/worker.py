@@ -128,22 +128,24 @@ def complete_work(id):
     building = dormitory.building
     
     if student and student.email:
-        subject = '【宿舍报修系统】您的报修已完成'
-        content = f'''
-        <p>尊敬的{student.name}：</p>
-        <p>您的报修申请已维修完成。</p>
-        <ul>
-            <li><strong>楼栋宿舍：</strong>{building.name} - {dormitory.room_number}</li>
-            <li><strong>报修类型：</strong>{repair_item.name}</li>
-            <li><strong>维修人员：</strong>{current_user.name}</li>
-            <li><strong>完成时间：</strong>{order.end_time.strftime("%Y-%m-%d %H:%M")}</li>
-        </ul>
-        <div style="background: #e8f5e9; padding: 15px; border-radius: 8px; margin: 15px 0;">
-            <h4 style="margin-top: 0;">💰 账单信息</h4>
-            <p style="font-size: 18px;">应缴金额：<strong style="color: #e53935;">¥{bill.amount}</strong></p>
-        </div>
-        <p>请登录系统确认并评价服务，如有问题请及时反馈。</p>
-        '''
+        subject = '您的报修已完成'
+        content = f'''<p style="margin:0 0 16px 0;">{student.name}，您好，</p>
+<p style="margin:0 0 24px 0;">您的报修申请已完成维修，请确认验收。</p>
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#f9fafb;border-radius:8px;margin-bottom:24px;">
+<tr><td style="padding:16px 20px;border-bottom:1px solid #e5e7eb;"><span style="color:#6b7280;">维修地点</span></td>
+<td style="padding:16px 20px;border-bottom:1px solid #e5e7eb;text-align:right;">{building.name} {dormitory.room_number}</td></tr>
+<tr><td style="padding:16px 20px;border-bottom:1px solid #e5e7eb;"><span style="color:#6b7280;">维修项目</span></td>
+<td style="padding:16px 20px;border-bottom:1px solid #e5e7eb;text-align:right;">{repair_item.name}</td></tr>
+<tr><td style="padding:16px 20px;border-bottom:1px solid #e5e7eb;"><span style="color:#6b7280;">维修师傅</span></td>
+<td style="padding:16px 20px;border-bottom:1px solid #e5e7eb;text-align:right;">{current_user.name}</td></tr>
+<tr><td style="padding:16px 20px;"><span style="color:#6b7280;">完成时间</span></td>
+<td style="padding:16px 20px;text-align:right;">{order.end_time.strftime("%Y-%m-%d %H:%M")}</td></tr>
+</table>
+<div style="background:#ecfdf5;border:1px solid #10b981;border-radius:8px;padding:20px;text-align:center;margin-bottom:24px;">
+<p style="margin:0 0 8px 0;color:#047857;font-size:14px;">本次维修费用</p>
+<p style="margin:0;font-size:28px;font-weight:700;color:#059669;">¥{bill.amount}</p>
+</div>
+<p style="margin:0;color:#6b7280;font-size:14px;">请登录系统确认验收并完成缴费。</p>'''
         html_content = current_app.get_email_base_template(content)
         success, message = current_app.send_email(student.email, subject, html_content)
         if success:

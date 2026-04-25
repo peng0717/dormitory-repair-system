@@ -35,88 +35,105 @@ def create_app():
     db.init_app(app)
     
     # ========== 邮件配置 ==========
-    # 邮件服务器配置（从环境变量读取，Replit中可在Secrets中配置）
-    app.config['MAIL_SERVER'] = os.environ.get('MAIL_SERVER', 'smtp.qq.com')
-    app.config['MAIL_PORT'] = int(os.environ.get('MAIL_PORT', 587))
-    app.config['MAIL_USE_TLS'] = os.environ.get('MAIL_USE_TLS', 'True').lower() == 'true'
-    app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USERNAME', '')  # 
-    app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD', '')  # 
-    app.config['MAIL_DEFAULT_SENDER'] = os.environ.get('MAIL_DEFAULT_SENDER', '宿舍报修系统 <noreply@dormitory.com>')
+    # 邮件服务器配置
+    app.config['MAIL_SERVER'] = 'smtp.qq.com'
+    app.config['MAIL_PORT'] = 465
+    app.config['MAIL_USE_SSL'] = True
+    app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USERNAME', '2790885462@qq.com')
+    app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD', 'fncwiptujvaydhba')
+    app.config['MAIL_DEFAULT_SENDER'] = os.environ.get('MAIL_USERNAME', '2790885462@qq.com')
     
-    def send_email(to_email, subject, html_content):
+    def send_email(to_email, subject, html_content, retries=3):
         """
-        发送邮件函数
-        :param to_email: 收件人邮箱
-        :param subject: 邮件主题
-        :param html_content: HTML邮件内容
-        :return: (success, message)
+        发送邮件函数（带重试机制）
         """
-        # 检查是否配置了邮件服务
-        if not app.config.get('MAIL_USERNAME') or not app.config.get('MAIL_PASSWORD'):
-            return False, "邮件服务未配置，请在环境变量中设置MAIL_USERNAME和MAIL_PASSWORD"
+        import time
+        from email.utils import formataddr, formatdate
         
-        try:
-            msg = MIMEMultipart('alternative')
-            msg['Subject'] = subject
-            msg['From'] = app.config['MAIL_DEFAULT_SENDER']
-            msg['To'] = to_email
-            
-            # 添加HTML内容
-            html_part = MIMEText(html_content, 'html', 'utf-8')
-            msg.attach(html_part)
-            
-            # 发送邮件
-            with smtplib.SMTP(app.config['MAIL_SERVER'], app.config['MAIL_PORT']) as server:
-                server.starttls()
-                server.login(app.config['MAIL_USERNAME'], app.config['MAIL_PASSWORD'])
-                server.sendmail(app.config['MAIL_USERNAME'], [to_email], msg.as_string())
-            
-            return True, "邮件发送成功"
-        except smtplib.SMTPAuthenticationError:
-            return False, "邮件认证失败，请检查邮箱用户名和SMTP授权码"
-        except smtplib.SMTPException as e:
-            return False, f"邮件发送失败：{str(e)}"
-        except Exception as e:
-            return False, f"邮件发送异常：{str(e)}"
+        for attempt in range(retries):
+            try:
+                msg = MIMEMultipart('alternative')
+                msg['Subject'] = subject
+                msg['From'] = formataddr(('宿舍报修系统', app.config['MAIL_USERNAME']))
+                msg['To'] = to_email
+                msg['Date'] = formatdate(localtime=True)
+                
+                html_part = MIMEText(html_content, 'html', 'utf-8')
+                msg.attach(html_part)
+                
+                with smtplib.SMTP_SSL(app.config['MAIL_SERVER'], app.config['MAIL_PORT'], timeout=30) as server:
+                    server.set_debuglevel(0)
+                    server.login(app.config['MAIL_USERNAME'], app.config['MAIL_PASSWORD'])
+                    server.sendmail(app.config['MAIL_USERNAME'], [to_email], msg.as_string())
+                
+                return True, "邮件发送成功"
+                
+            except smtplib.SMTPAuthenticationError:
+                return False, "认证失败：请确认授权码是否正确"
+            except smtplib.SMTPException as e:
+                error_msg = str(e)
+                if attempt < retries - 1:
+                    time.sleep(2)
+                    continue
+                return False, f"邮件发送失败：{error_msg}"
+            except Exception as e:
+                if attempt < retries - 1:
+                    time.sleep(2)
+                    continue
+                return False, f"网络连接异常，请稍后重试"
+        
+        return False, "发送超时，请检查网络"
     
-    # 将发送邮件函数挂载到app上
     app.send_email = send_email
     
-    # ========== 邮件模板函数 ==========
+    # ========== 专业邮件模板 ==========
     
-    def get_email_base_template(content):
-        """邮件基础模板"""
-        return f'''
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <meta charset="UTF-8">
-            <style>
-                body {{ font-family: 'Microsoft YaHei', Arial, sans-serif; line-height: 1.6; color: #333; }}
-                .container {{ max-width: 600px; margin: 0 auto; padding: 20px; }}
-                .header {{ background: linear-gradient(135deg, #4a90d9 0%, #5b9bd5 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }}
-                .header h2 {{ margin: 0; }}
-                .content {{ background: #fff; padding: 30px; border: 1px solid #e0e0e0; border-top: none; border-radius: 0 0 10px 10px; }}
-                .footer {{ text-align: center; padding: 20px; color: #666; font-size: 12px; }}
-                .btn {{ display: inline-block; background: #4a90d9; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; margin-top: 15px; }}
-            </style>
-        </head>
-        <body>
-            <div class="container">
-                <div class="header">
-                    <h2>🏠 宿舍报修管理系统</h2>
-                </div>
-                <div class="content">
-                    {content}
-                </div>
-                <div class="footer">
-                    <p>这是一封系统自动发送的邮件，请勿直接回复。</p>
-                    <p>如有疑问，请联系宿舍管理员。</p>
-                </div>
-            </div>
-        </body>
-        </html>
-        '''
+    def get_email_base_template(content, title="宿舍报修系统"):
+        """专业邮件基础模板"""
+        return f'''<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{title}</title>
+</head>
+<body style="margin:0;padding:0;background-color:#f4f5f7;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;">
+<table width="100%" cellpadding="0" cellspacing="0" style="background-color:#f4f5f7;padding:40px 20px;">
+<tr>
+<td align="center">
+<table width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.08);">
+<!-- 顶部色块 -->
+<tr>
+<td style="background:linear-gradient(135deg,#3b82f6 0%,#1d4ed8 100%);padding:32px 40px;text-align:center;">
+<div style="display:inline-block;width:48px;height:48px;background:rgba(255,255,255,0.2);border-radius:10px;line-height:48px;font-size:24px;">🏠</div>
+<h1 style="margin:12px 0 0 0;color:#ffffff;font-size:22px;font-weight:600;letter-spacing:0.5px;">宿舍报修管理系统</h1>
+</td>
+</tr>
+<!-- 主体内容 -->
+<tr>
+<td style="padding:36px 40px;color:#1f2937;font-size:15px;line-height:1.7;">
+{content}
+</td>
+</tr>
+<!-- 分割线 -->
+<tr>
+<td style="padding:0 40px;">
+<div style="height:1px;background:#e5e7eb;"></div>
+</td>
+</tr>
+<!-- 底部信息 -->
+<tr>
+<td style="padding:24px 40px;text-align:center;">
+<p style="margin:0 0 8px 0;color:#6b7280;font-size:13px;">此邮件由系统自动发送，请勿直接回复</p>
+<p style="margin:0;color:#9ca3af;font-size:12px;">© 2024 宿舍报修管理系统 · 保障宿舍生活品质</p>
+</td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+</body>
+</html>'''
     
     app.get_email_base_template = get_email_base_template
     

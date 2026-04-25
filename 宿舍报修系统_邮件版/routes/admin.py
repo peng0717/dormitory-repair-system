@@ -444,17 +444,18 @@ def assign_worker(id):
         if worker and worker.user.email:
             dormitory = repair_request.dormitory
             building = dormitory.building
-            subject = '【宿舍报修系统】您有新的维修任务'
-            content = f'''
-            <p>尊敬的{worker.user.name}：</p>
-            <p>您有新的维修任务待处理。</p>
-            <ul>
-                <li><strong>楼栋宿舍：</strong>{building.name} - {dormitory.room_number}</li>
-                <li><strong>报修类型：</strong>{repair_request.repair_item.name}</li>
-                <li><strong>问题描述：</strong>{repair_request.description}</li>
-            </ul>
-            <p>请及时登录系统查看详情并处理。</p>
-            '''
+            subject = '新维修任务待处理'
+            content = f'''<p style="margin:0 0 16px 0;">{worker.user.name}，您好，</p>
+<p style="margin:0 0 24px 0;">有新的维修任务已分配给您，请及时处理。</p>
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#f9fafb;border-radius:8px;margin-bottom:24px;">
+<tr><td style="padding:16px 20px;border-bottom:1px solid #e5e7eb;"><span style="color:#6b7280;">地点</span></td>
+<td style="padding:16px 20px;border-bottom:1px solid #e5e7eb;text-align:right;"><strong>{building.name} {dormitory.room_number}</strong></td></tr>
+<tr><td style="padding:16px 20px;border-bottom:1px solid #e5e7eb;"><span style="color:#6b7280;">报修类型</span></td>
+<td style="padding:16px 20px;border-bottom:1px solid #e5e7eb;text-align:right;">{repair_request.repair_item.name}</td></tr>
+<tr><td style="padding:16px 20px;"><span style="color:#6b7280;">问题描述</span></td>
+<td style="padding:16px 20px;text-align:right;">{repair_request.description or '无'}</td></tr>
+</table>
+<p style="margin:0;color:#6b7280;font-size:14px;">请登录系统查看详细信息并安排维修。</p>'''
             html_content = current_app.get_email_base_template(content)
             success, message = current_app.send_email(worker.user.email, subject, html_content)
             if success:
@@ -545,19 +546,16 @@ def complaints_reply(id):
     # 发送邮件通知学生
     student = complaint.student
     if student and student.email:
-        subject = '【宿舍报修系统】您的投诉已处理'
-        content = f'''
-        <p>尊敬的同学：</p>
-        <p>您的投诉已得到处理回复。</p>
-        <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 15px 0;">
-            <p><strong>您的投诉：</strong></p>
-            <p>{complaint.content}</p>
-            <hr>
-            <p><strong>管理员回复：</strong></p>
-            <p>{reply}</p>
-        </div>
-        <p>如需进一步帮助，请联系宿舍管理员。</p>
-        '''
+        subject = '您的投诉已收到回复'
+        content = f'''<p style="margin:0 0 16px 0;">您好，</p>
+<p style="margin:0 0 24px 0;">您提交的投诉已处理，以下是回复内容：</p>
+<div style="background:#f9fafb;border-radius:8px;padding:20px;margin:0 0 24px 0;">
+<p style="margin:0 0 12px 0;color:#6b7280;font-size:13px;">您反馈的问题</p>
+<p style="margin:0 0 20px 0;padding-bottom:16px;border-bottom:1px dashed #e5e7eb;">{complaint.content}</p>
+<p style="margin:0 0 12px 0;color:#6b7280;font-size:13px;">管理员回复</p>
+<p style="margin:0;">{reply}</p>
+</div>
+<p style="margin:0;color:#6b7280;font-size:14px;">如有其他问题，欢迎继续反馈。</p>'''
         html_content = current_app.get_email_base_template(content)
         success, message = current_app.send_email(student.email, subject, html_content)
         if success:
@@ -610,16 +608,14 @@ def announcements_add():
         
         for student in students:
             if student.email:
-                subject = f'【宿舍报修系统】新公告：{title}'
-                email_content = f'''
-                <p>尊敬的同学：</p>
-                <p>系统发布了新公告，请登录查看详情。</p>
-                <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 15px 0;">
-                    <h4 style="margin-top: 0;">{title}</h4>
-                    <p>{content.replace(chr(10), '<br>')}</p>
-                    <p style="color: #666; font-size: 12px;">发布时间：{announcement.created_at.strftime("%Y-%m-%d %H:%M")}</p>
-                </div>
-                '''
+                subject = f'新公告：{title}'
+                email_content = f'''<p style="margin:0 0 16px 0;">您好，</p>
+<p style="margin:0 0 24px 0;">系统发布了新的公告通知，请查阅。</p>
+<div style="background:#f9fafb;border-radius:8px;padding:20px;margin:0 0 24px 0;">
+<h3 style="margin:0 0 16px 0;color:#1f2937;font-size:18px;">{title}</h3>
+<div style="color:#4b5563;line-height:1.8;">{content.replace(chr(10), '<br>')}</div>
+</div>
+<p style="margin:0;color:#9ca3af;font-size:13px;">发布于 {announcement.created_at.strftime("%Y-%m-%d %H:%M")}</p>'''
                 html_content = current_app.get_email_base_template(email_content)
                 success, message = current_app.send_email(student.email, subject, html_content)
                 if success:

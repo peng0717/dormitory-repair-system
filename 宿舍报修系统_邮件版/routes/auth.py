@@ -181,13 +181,14 @@ def forgot_password():
         db.session.commit()
         
         # 发送邮件
-        subject = '【宿舍报修系统】密码找回验证码'
-        content = f'''
-        <p>尊敬的用户：</p>
-        <p>您正在申请找回密码，验证码为：<strong style="font-size: 24px; color: #4a90d9;">{code}</strong></p>
-        <p>验证码有效期为<strong>10分钟</strong>，请勿泄露给他人。</p>
-        <p>如非本人操作，请忽略此邮件。</p>
-        '''
+        subject = '密码找回 - 验证码'
+        content = f'''<p style="margin:0 0 16px 0;">您好，</p>
+<p style="margin:0 0 24px 0;">您正在申请重置账户密码。请使用以下验证码完成身份确认：</p>
+<div style="background:#f3f4f6;border-radius:8px;padding:20px;text-align:center;margin:0 0 24px 0;">
+<span style="font-size:32px;font-weight:700;color:#1d4ed8;letter-spacing:8px;">{code}</span>
+</div>
+<p style="margin:0 0 8px 0;color:#6b7280;font-size:14px;">验证码10分钟内有效，请勿告知他人。</p>
+<p style="margin:0;color:#9ca3af;font-size:14px;">如果这不是您本人的操作，请忽略此邮件。</p>'''
         html_content = current_app.get_email_base_template(content)
         success, message = current_app.send_email(email, subject, html_content)
         

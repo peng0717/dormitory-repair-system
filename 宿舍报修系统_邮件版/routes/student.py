@@ -102,18 +102,20 @@ def repair_request_add():
         building = dormitory.building
         for admin in admins:
             if admin.email:
-                subject = '【宿舍报修系统】新的报修申请'
-                content = f'''
-                <p>尊敬的管理员：</p>
-                <p>有新的报修申请待处理。</p>
-                <ul>
-                    <li><strong>报修人：</strong>{current_user.name}</li>
-                    <li><strong>楼栋宿舍：</strong>{building.name} - {dormitory.room_number}</li>
-                    <li><strong>报修类型：</strong>{repair_request.repair_item.name}</li>
-                    <li><strong>问题描述：</strong>{description}</li>
-                </ul>
-                <p>请及时登录系统处理。</p>
-                '''
+                subject = '新报修申请待处理'
+                content = f'''<p style="margin:0 0 16px 0;">管理员，您好，</p>
+<p style="margin:0 0 24px 0;">收到新的报修申请，请尽快安排处理。</p>
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#f9fafb;border-radius:8px;margin-bottom:24px;">
+<tr><td style="padding:16px 20px;border-bottom:1px solid #e5e7eb;"><span style="color:#6b7280;">报修人</span></td>
+<td style="padding:16px 20px;border-bottom:1px solid #e5e7eb;text-align:right;">{current_user.name}</td></tr>
+<tr><td style="padding:16px 20px;border-bottom:1px solid #e5e7eb;"><span style="color:#6b7280;">地点</span></td>
+<td style="padding:16px 20px;border-bottom:1px solid #e5e7eb;text-align:right;"><strong>{building.name} {dormitory.room_number}</strong></td></tr>
+<tr><td style="padding:16px 20px;border-bottom:1px solid #e5e7eb;"><span style="color:#6b7280;">报修类型</span></td>
+<td style="padding:16px 20px;border-bottom:1px solid #e5e7eb;text-align:right;">{repair_request.repair_item.name}</td></tr>
+<tr><td style="padding:16px 20px;"><span style="color:#6b7280;">问题描述</span></td>
+<td style="padding:16px 20px;text-align:right;">{description or '无'}</td></tr>
+</table>
+<p style="margin:0;color:#6b7280;font-size:14px;">请登录系统进行工单分配。</p>'''
                 html_content = current_app.get_email_base_template(content)
                 current_app.send_email(admin.email, subject, html_content)
         
