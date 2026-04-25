@@ -105,7 +105,6 @@ def create_app():
 <!-- 顶部色块 -->
 <tr>
 <td style="background:linear-gradient(135deg,#3b82f6 0%,#1d4ed8 100%);padding:32px 40px;text-align:center;">
-<div style="display:inline-block;width:48px;height:48px;background:rgba(255,255,255,0.2);border-radius:10px;line-height:48px;font-size:24px;">🏠</div>
 <h1 style="margin:12px 0 0 0;color:#ffffff;font-size:22px;font-weight:600;letter-spacing:0.5px;">宿舍报修管理系统</h1>
 </td>
 </tr>
